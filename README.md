@@ -58,14 +58,26 @@ Step 1: Static Web site
 
 The goal of this step is to build a Docker image that contains a static HTTP server Nginx. The server will serve a static Web site. The static Web site will be a single page with a nice looking template. You can use a free template for example from [Free-CSS](https://www.free-css.com/free-css-templates) or [Start Bootstrap](https://startbootstrap.com/themes).
 
+### How we completed this step
+
+To complete this step we needed to create an new folder, in our case `staticWebServer`, that will contain the website, the Dockerfile and the nginx.conf file.
+Our nginx.conf file specifies the port that the server is listening on and the location of the index file.
+
+Here are the commands that we used to build the image and run the container: 
+```bash
+docker build -t static_web_server .
+
+docker run --name nginx_static -d -p 9080:9080 static_web_server
+```
+
 ### Acceptance criteria
 
-- [ ] You have created a separate folder in your respository for your static Web server.
-- [ ] You have a Dockerfile based on the Nginx image. The Dockerfile copies the static site content into the image.
-- [ ] You have configured the `nginx.conf` configuration file to serve the static content on a port (normally 80).
-- [ ] You are able to explain the content of the `nginx.conf` file.
-- [ ] You can run the image and access the static content from a browser.
-- [ ] You have **documented** your configuration in your report.
+- [x] You have created a separate folder in your respository for your static Web server.
+- [x] You have a Dockerfile based on the Nginx image. The Dockerfile copies the static site content into the image.
+- [x] You have configured the `nginx.conf` configuration file to serve the static content on a port (normally 80).
+- [x] You are able to explain the content of the `nginx.conf` file.
+- [x] You can run the image and access the static content from a browser.
+- [x] You have **documented** your configuration in your report.
 
 
 Step 2: Docker compose
