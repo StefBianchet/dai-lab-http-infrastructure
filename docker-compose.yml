@@ -1,0 +1,7 @@
+services:
+  static:
+    image: dai/staticwebserver
+    build: 
+      context: ./staticwebserver
+    ports: 
+    - "9080:9080" 
