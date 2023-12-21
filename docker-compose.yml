@@ -4,4 +4,4 @@ services:
     build: 
       context: ./staticwebserver
     ports: 
-    - "9080:9080" 
+    - "9080:9080"
