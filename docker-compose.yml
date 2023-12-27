@@ -3,11 +3,21 @@ services:
     image: dai/staticwebserver
     build: 
       context: ./staticwebserver
-    ports: 
-    - "9080:9080"
+    labels:
+      - traefik.http.routers.static.rule=Host(`localhost`)
+      - traefik.http.services.static.loadbalancer.server.port=9080
   api:
     image: dai/api
     build:
       context: ./api
+    labels:
+      - traefik.http.routers.api.rule=Host(`localhost`) && PathPrefix(`/api`)
+      - traefik.http.services.api.loadbalancer.server.port=7070
+  reverse_proxy:
+    image: traefik:v2.10
+    command: --api.insecure=true --providers.docker
     ports:
-    - "7070:7070"
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

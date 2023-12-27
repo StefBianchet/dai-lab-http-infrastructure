@@ -187,14 +187,52 @@ The steps to follow for this section are thus:
   - you will have to remove the `ports` configuration from the static and dynamic server in the docker compose file and replace them with `expose` configuration. Traefik will then be able to access the servers through the internal Docker network.
 - You can use the [Traefik dashboard](https://doc.traefik.io/traefik/operations/dashboard/) to monitor the state of the reverse proxy.
 
+### How we completed this step
+
+Here's the *latest version* of our docker-compose.yml
+
+```yml
+services:
+  static:
+    image: dai/staticwebserver
+    build: 
+      context: ./staticwebserver
+    labels:
+      - traefik.http.routers.static.rule=Host(`localhost`)
+      - traefik.http.services.static.loadbalancer.server.port=9080
+  api:
+    image: dai/api
+    build:
+      context: ./api
+    labels:
+      - traefik.http.routers.api.rule=Host(`localhost`) && PathPrefix(`/api`)
+      - traefik.http.services.api.loadbalancer.server.port=7070
+  reverse_proxy:
+    image: traefik:v2.10
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+We had to add two labels to each of our "services" to relay the requests as required.
+
+The first label is to impose routing and path prefix conditions. The second label is used to define on which port the load-balancing server is listening on.
+
+To access the Traefik dashboard all you need to do is run the `docker compose up -d` command and then go to http://localhost:8080/dashboard/
+
+This dashboard allows us to see a list of HTTP routers, services and middlewares.
+
 ### Acceptance criteria
 
-- [ ] You can do a demo where you start from an "empty" Docker environment (no container running) and using docker compose you can start your infrastructure with 3 containers: static server, dynamic server and reverse proxy
-- [ ] In the demo you can access each server from the browser in the demo. You can prove that the routing is done correctly through the reverse proxy.
-- [ ] You are able to explain in the documentation how you have implemented the solution and walk us through the configuration and the code.
-- [ ] You are able to explain in the documentation why a reverse proxy is useful to improve the security of the infrastructure.
-- [ ] You are able to explain in the documentation how to access the dashboard of Traefik and how it works.
-- [ ] You have **documented** your configuration in your report.
+- [x] You can do a demo where you start from an "empty" Docker environment (no container running) and using docker compose you can start your infrastructure with 3 containers: static server, dynamic server and reverse proxy
+- [x] In the demo you can access each server from the browser in the demo. You can prove that the routing is done correctly through the reverse proxy.
+- [x] You are able to explain in the documentation how you have implemented the solution and walk us through the configuration and the code.
+- [x] You are able to explain in the documentation why a reverse proxy is useful to improve the security of the infrastructure.
+- [x] You are able to explain in the documentation how to access the dashboard of Traefik and how it works.
+- [x] You have **documented** your configuration in your report.
 
 
 Step 5: Scalability and load balancing
