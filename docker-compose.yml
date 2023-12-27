@@ -6,6 +6,8 @@ services:
     labels:
       - traefik.http.routers.static.rule=Host(`localhost`)
       - traefik.http.services.static.loadbalancer.server.port=9080
+    deploy:
+      replicas: 5
   api:
     image: dai/api
     build:
@@ -13,6 +15,8 @@ services:
     labels:
       - traefik.http.routers.api.rule=Host(`localhost`) && PathPrefix(`/api`)
       - traefik.http.services.api.loadbalancer.server.port=7070
+    deploy:
+      replicas: 5
   reverse_proxy:
     image: traefik:v2.10
     command: --api.insecure=true --providers.docker
