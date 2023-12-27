@@ -1,0 +1,31 @@
+meta {
+  name: Update a driver's info
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseURL}}/api/drivers/6
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "firstName": "Lando",
+    "lastName": "Norris",
+    "country": "United Kingdom",
+    "age": 24,
+    "birthDate": "13-11-1999",
+    "team": "McLaren",
+    "rank": 6,
+    "points": 0
+  }
+}
+
+tests {
+  test("It worked", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+  });
+}

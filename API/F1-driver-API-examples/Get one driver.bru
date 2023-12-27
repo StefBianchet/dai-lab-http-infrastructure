@@ -1,0 +1,25 @@
+meta {
+  name: Get one driver
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseURL}}/api/drivers/4
+  body: none
+  auth: none
+}
+
+tests {
+  test("Should be able to access this URL", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Fernando Alonso's info is shown", function() {
+    const data = res.getBody();
+    expect(data.firstName).to.equal('Fernando');
+    expect(data.lastName).to.equal('Alonso');
+  });
+  
+}

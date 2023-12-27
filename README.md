@@ -131,15 +131,42 @@ The server does not need to use a database. You can store the data in memory. Bu
 
 Once you're finished with the implementation, create a Dockerfile for the API server. Then add it as a service to your docker compose configuration.
 
+### How we completed this step
+
+We decided to create an API about Formula 1 drivers. Our API supports all CRUD operations.
+
+We used [Bruno](https://www.usebruno.com/) to test our API. API usage examples are in the `F1-driver-API-examples` folder
+We add this environment variable to Bruno to make our API work correctly : `baseURL = http://localhost:7070`
+
+We also created a new DockerFile dockerizing our API.
+
+We added our new service API to our `docker-compose.yml` file. This new service builds the DockerFile created earlier.
+Here is the updated content of our `docker-compose.yml` file :
+```yml
+services:
+  static:
+    image: dai/staticwebserver
+    build:
+      context: ./staticwebserver
+    ports:
+      - "9080:9080"
+  api:
+    image: dai/api
+    build:
+      context: ./api
+    ports:
+      - "7070:7070"
+```
+
 ### Acceptance criteria
 
-- [ ] Your API supports all CRUD operations.
-- [ ] You are able to explain your implementation and walk us through the code.
-- [ ] You can start and stop the API server using docker compose.
-- [ ] You can access both the API and the static server from your browser.
-- [ ] You can rebuild the docker image with docker compose.
-- [ ] You can do demo where use an API testing tool to show that all CRUD operations work.
-- [ ] You have **documented** your implementation in your report.
+- [x] Your API supports all CRUD operations.
+- [x] You are able to explain your implementation and walk us through the code.
+- [x] You can start and stop the API server using docker compose.
+- [x] You can access both the API and the static server from your browser.
+- [x] You can rebuild the docker image with docker compose.
+- [x] You can do demo where use an API testing tool to show that all CRUD operations work.
+- [x] You have **documented** your implementation in your report.
 
 
 Step 4: Reverse proxy with Traefik

@@ -5,3 +5,9 @@ services:
       context: ./staticwebserver
     ports: 
     - "9080:9080"
+  api:
+    image: dai/api
+    build:
+      context: ./api
+    ports:
+    - "7070:7070"

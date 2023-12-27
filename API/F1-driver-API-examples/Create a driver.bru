@@ -1,0 +1,31 @@
+meta {
+  name: Create a driver
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseURL}}/api/drivers/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "firstName": "Lando",
+    "lastName": "Norris",
+    "country": "United Kingdom",
+    "age": 42,
+    "birthDate": "13-11-1999",
+    "team": "McLaren",
+    "rank": 6,
+    "points": 0
+  }
+}
+
+tests {
+  test("A driver was created", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(201);
+  });
+}

@@ -1,0 +1,28 @@
+meta {
+  name: Get All drivers
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseURL}}/api/drivers
+  body: none
+  auth: none
+}
+
+tests {
+  test("Should be able to access this URL", function() {
+    const data = res.getBody();
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Content should appear", function() {
+    const data = res.getBody();
+    expect(data[1].firstName).to.be.a('string');
+    expect(data[2].firstName).to.be.a('string');
+    expect(data[3].firstName).to.be.a('string');
+    expect(data[4].firstName).to.be.a('string');
+    expect(data[5].firstName).to.be.a('string');
+  });
+  
+}
