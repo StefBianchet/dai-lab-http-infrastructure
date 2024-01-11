@@ -13,7 +13,7 @@ services:
     build:
       context: ./api
     labels:
-      - traefik.http.routers.api.rule=Host(`localhost`) && PathPrefix(`/api`)
+      - traefik.http.routers.api.rule=Host(`localhost`) && PathPrefix(`/api/`)
       - traefik.http.services.api.loadbalancer.server.port=7070
     deploy:
       replicas: 5

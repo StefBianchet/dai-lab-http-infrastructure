@@ -242,13 +242,59 @@ The goal of this section is to allow Traefik to dynamically detect several insta
 
 Modify your docker compose file such that several instances of each server are started. Check that the reverse proxy distributes the connections between the different instances. Then, find a way to *dynamically* update the number of instances of each service with docker compose, without having to stop and restart the topology.
 
+### How we completed this step
+
+Here's our docker-compose.yml for this step
+```yml
+services:
+  static:
+    image: dai/staticwebserver
+    build: 
+      context: ./staticwebserver
+    labels:
+      - traefik.http.routers.static.rule=Host(`localhost`)
+      - traefik.http.services.static.loadbalancer.server.port=9080
+    deploy:
+      replicas: 5
+  api:
+    image: dai/api
+    build:
+      context: ./api
+    labels:
+      - traefik.http.routers.api.rule=Host(`localhost`) && PathPrefix(`/api/`)
+      - traefik.http.services.api.loadbalancer.server.port=7070
+    deploy:
+      replicas: 5
+  reverse_proxy:
+    image: traefik:v2.10
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+We added replicas to the file.
+
+To dynamically change the number of instances you need to type this command into the terminal
+```bash
+docker compose up -d --scale api=7
+```
+
+You can replace `api=7` with `static=any_number` if you want to add more instances of the static web page container.
+
+To access the static web page go to `localhost` and go to `localhost/api/drivers` to get the list of drivers from the API.
+
+
+
 ### Acceptance criteria
 
-- [ ] You can use docker compose to start the infrastructure with several instances of each server (static and dynamic).
-- [ ] You can dynamically add and remove instances of each server.
-- [ ] You can do a demo to show that Traefik performs load balancing among the instances.
-- [ ] If you add or remove instances, you can show that the load balancer is dynamically updated to use the available instances.
-- [ ] You have **documented** your configuration in your report.
+- [x] You can use docker compose to start the infrastructure with several instances of each server (static and dynamic).
+- [x] You can dynamically add and remove instances of each server.
+- [x] You can do a demo to show that Traefik performs load balancing among the instances.
+- [x] If you add or remove instances, you can show that the load balancer is dynamically updated to use the available instances.
+- [x] You have **documented** your configuration in your report.
 
 
 Step 6: Load balancing with round-robin and sticky sessions
