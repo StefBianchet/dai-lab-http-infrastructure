@@ -284,9 +284,8 @@ docker compose up -d --scale api=7
 
 You can replace `api=7` with `static=any_number` if you want to add more instances of the static web page container.
 
-To access the static web page go to `localhost` and go to `localhost/api/drivers` to get the list of drivers from the API.
 
-
+To tell which server is running all you need to do is run `docker compose logs`, the name of the container that is running will be on the left, i.e., dai-lab-http-infrastructure-api-4
 
 ### Acceptance criteria
 
