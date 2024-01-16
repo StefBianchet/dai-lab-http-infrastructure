@@ -306,12 +306,95 @@ The goal of this step is to change the configuration such that:
 - Traefik uses sticky session for the dynamic server instances (API service).
 - Traefik continues to use round robin for the static servers (no change required).
 
+### How we completed this step
+
+Here's our docker-compose.yml for this step
+```yml
+services:
+  static:
+    image: dai/staticwebserver
+    build: 
+      context: ./staticwebserver
+    labels:
+      - traefik.http.routers.static.rule=Host(`localhost`)
+      - traefik.http.services.static.loadbalancer.server.port=9080
+    deploy:
+      replicas: 5
+  api:
+    image: dai/api
+    build:
+      context: ./api
+    labels:
+      - traefik.http.routers.api.rule=Host(`localhost`) && PathPrefix(`/api/`)
+      - traefik.http.services.api.loadbalancer.server.port=7070
+      - traefik.http.services.api.loadBalancer.sticky.cookie=true
+      - traefik.http.services.api.loadBalancer.sticky.cookie.name=cookie_api
+    deploy:
+      replicas: 5
+  reverse_proxy:
+    image: traefik:v2.10
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+We added cookie labels to the API service.
+
+After that, we checked if the cookie was present in the response from the API. Here is the response received by the client : 
+
+```http
+GET /api/drivers HTTP/1.1
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-GB,en;q=0.9,fr;q=0.8
+Cache-Control: no-cache
+Connection: keep-alive
+Cookie: cookie_api=8ca106c699558f55
+Host: localhost
+Pragma: no-cache
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+sec-ch-ua: "Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Windows"
+```
+
+In comparison, here is the response from the static web site. As you can see there is no cookie.
+
+```http
+GET / HTTP/1.1
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-GB,en;q=0.9,fr;q=0.8
+Cache-Control: no-cache
+Connection: keep-alive
+Host: localhost
+Pragma: no-cache
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+sec-ch-ua: "Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Windows"
+
+```
+
 ### Acceptance criteria
 
-- [ ] You do a setup to demonstrate the notion of sticky session.
-- [ ] You prove that your load balancer can distribute HTTP requests in a round-robin fashion to the static server nodes (because there is no state).
-- [ ] You prove that your load balancer can handle sticky sessions when forwarding HTTP requests to the dynamic server nodes.
-- [ ] You have **documented** your configuration and your validation procedure in your report.
+- [x] You do a setup to demonstrate the notion of sticky session.
+- [x] You prove that your load balancer can distribute HTTP requests in a round-robin fashion to the static server nodes (because there is no state).
+- [x] You prove that your load balancer can handle sticky sessions when forwarding HTTP requests to the dynamic server nodes.
+- [x] You have **documented** your configuration and your validation procedure in your report.
 
 
 Step 7: Securing Traefik with HTTPS
