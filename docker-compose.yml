@@ -6,6 +6,8 @@ services:
     labels:
       - traefik.http.routers.static.rule=Host(`localhost`)
       - traefik.http.services.static.loadbalancer.server.port=9080
+      - traefik.http.routers.static.entrypoints=https
+      - traefik.http.routers.static.tls=true
     deploy:
       replicas: 5
   api:
@@ -17,6 +19,8 @@ services:
       - traefik.http.services.api.loadbalancer.server.port=7070
       - traefik.http.services.api.loadBalancer.sticky.cookie=true
       - traefik.http.services.api.loadBalancer.sticky.cookie.name=cookie_api
+      - traefik.http.routers.api.entrypoints=https
+      - traefik.http.routers.api.tls=true
     deploy:
       replicas: 5
   reverse_proxy:
@@ -27,3 +31,5 @@ services:
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./certificates:/etc/traefik/certificates
+      - ./traefik.yaml:/etc/traefik/trafik.yaml
