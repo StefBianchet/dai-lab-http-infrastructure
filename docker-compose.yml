@@ -35,3 +35,10 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./certificates:/etc/traefik/certificates
       - ./traefik.yaml:/etc/traefik/traefik.yaml
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped

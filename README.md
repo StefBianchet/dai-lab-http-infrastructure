@@ -559,17 +559,35 @@ The goal of this step is to deploy or develop a Web app that can be used to moni
 - you use an existing solution (search on Google)
 - for extra points, develop your own Web app. In this case, you can use the Dockerode npm module (or another Docker client library, in any of the supported languages) to access the docker API.
 
+### How we completed this step
+
+We added a portainer service to our docker compose. This allows us to monitor our http infrastructure by using the Portainer Web app.
+
+Here's the service we added to our docker-compose.yml file : 
+
+```yml
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+```
+
+All you need to do is go to `localhost:9443` and log in. Click on the local environment, and then Stacks and choose the "dai-lab-http-infrastructure" stack. You can manage all of the containers here
+
 ### Acceptance criteria
 
-- [ ] You can do a demo to show the Management UI and manage the containers of your infrastructure.
-- [ ] You have **documented** how to use your solution.
-- [ ] You have **documented** your configuration in your report.
+- [x] You can do a demo to show the Management UI and manage the containers of your infrastructure.
+- [x] You have **documented** how to use your solution.
+- [x] You have **documented** your configuration in your report.
 
 
 Optional step 2: Integration API - static Web site
 --------------------------------------------------
 
-This is a step into unknow territory. But you will figure it out.
+This is a step into unknown territory. But you will figure it out.
 
 The goal of this step is to change your static Web page to periodically make calls to your API server and show the results in the Web page. You will need JavaScript for this and this functionality is called AJAX.
 
