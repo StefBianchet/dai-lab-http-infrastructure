@@ -454,10 +454,95 @@ After these configurations it should be possible to access the static and the dy
 
 If it does not work, go to the Traefik dashboard and check the configuration of the routers and the entrypoints.
 
+### How we completed this step
+
+First, we needed to create a certificate and a key. We used openssl to do this. 
+
+Here's the command that we used:
+`openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365`
+
+Then we put both files in the certificates folder [here](certificates/).
+
+Here's the traefik.yaml file that we created:
+```yaml
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: true
+
+entryPoints:
+  http:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: "https"
+          scheme: "https"
+  https:
+    address: ":443"
+
+api:
+  dashboard: true
+  insecure: true
+
+tls:
+  certificates:
+    - certFile: /etc/traefik/certificates/cert.pem
+      keyFile: /etc/traefik/certificates/key.pem
+```
+
+We added docker as a provider and then added two entrypoints, one for HTTP and the other for HTTPS.
+
+The api section allows us to use the dashboard even though we configured TLS. 
+
+
+After writing our traefik.yaml file we had to change our docker-compose.yml. Here it is:
+```yml
+services:
+  static:
+    image: dai/staticwebserver
+    build: 
+      context: ./staticwebserver
+    labels:
+      - traefik.http.routers.static.rule=Host(`localhost`)
+      - traefik.http.services.static.loadbalancer.server.port=9080
+      - traefik.http.routers.static.entrypoints=https
+      - traefik.http.routers.static.tls=true
+    deploy:
+      replicas: 3
+  api:
+    image: dai/api
+    build:
+      context: ./api
+    labels:
+      - traefik.http.routers.api.rule=Host(`localhost`) && PathPrefix(`/api/`)
+      - traefik.http.services.api.loadbalancer.server.port=7070
+      - traefik.http.services.api.loadBalancer.sticky.cookie=true
+      - traefik.http.services.api.loadbalancer.sticky.cookie.secure=true
+      - traefik.http.services.api.loadBalancer.sticky.cookie.name=cookie_api
+      - traefik.http.routers.api.entrypoints=https
+      - traefik.http.routers.api.tls=true
+    deploy:
+      replicas: 3
+  reverse_proxy:
+    image: traefik:v2.10
+    command: --providers.docker
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./certificates:/etc/traefik/certificates
+      - ./traefik.yaml:/etc/traefik/traefik.yaml
+```
+
+We had to add the entrypoints to both services and mount some files to configure traefik.
+
 ### Acceptance criteria
 
-- [ ] You can do a demo where you show that the static and dynamic servers are accessible through HTTPS.
-- [ ] You have **documented** your configuration in your report.
+- [x] You can do a demo where you show that the static and dynamic servers are accessible through HTTPS.
+- [x] You have **documented** your configuration in your report.
 
 
 
