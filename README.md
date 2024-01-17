@@ -596,10 +596,37 @@ Keep it simple! You can start by just making a GET request to the API server and
 
 The modern way to make such requests is to use the [JavaScript Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch). But you can also use JQuery if you prefer.
 
+### How we completed this step
 
+We slightly changed our website to make our driver list appear. We added some fetch code in our index.html file. Refresh the page to update the list.
+
+Here's what we added:
+```html
+<h2 class="text-white mb-4">This list is provided by our API</h2>
+<ul style="background-color: LightGrey;"></ul>
+<script>
+    fetch("/api/drivers", {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        }
+    }).then(res =>{
+        return res.json();
+    }).then(data => {
+        const result = [];
+        Object.keys(data).forEach(key => {
+            result.push(data[key])
+        })
+        result.forEach(driver => {
+            const markup = `<li>${driver.firstName} ${driver.lastName}</li>`;
+            document.querySelector('ul').insertAdjacentHTML('beforeend', markup);
+        });
+    }).catch(error => console.log(error));
+</script>
+```
 ### Acceptance criteria
 
-- [ ] You have added JavaScript code to your static Web page to make at least a GET request to the API server.
-- [ ] You can do a demo where you show that the API is called and the result is displayed on the page.
-- [ ] You have **documented** your implementation in your report.
+- [x] You have added JavaScript code to your static Web page to make at least a GET request to the API server.
+- [x] You can do a demo where you show that the API is called and the result is displayed on the page.
+- [x] You have **documented** your implementation in your report.
 
